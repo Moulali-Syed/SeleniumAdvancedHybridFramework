@@ -1,0 +1,577 @@
+What is a Framework?
+A framework defines the teams way of doing things -  a common standard
+	Easy to maintain read
+	Data driven tests
+	Meaningful Reporting
+	Standard and Consistent Coding
+	Encapsulation of UI interactions
+	Maximize code reusability
+
+Duplication is the primary enemy of a well designed system
+DRY priniciple - Dont Repeat Yourself
+==========================================================================================================================================================
+What is a Page Object Model?
+A page object wraps an HTML page with APIs , that allows us to work with page elements
+A Page Object should provide an interface which is easy to program
+The Page object should encapsulate the code used to find and manipulate the elements/data in the page itself
+A good rule of thumb is to imagine changing the concrete page - in which case the Test Class shouldnot change
+
+WebPage -[Application Under Test]
+	|
+	|
+	PageObject [WebElements and Methods]
+		|
+		|
+		Test Class[test methods]
+
+Advantage:
+1.code reusability - write code once use it in different tests
+2.Code maintainability - There is a clean seperation between test code and page specific code
+3.Efficient - Shorten the learning curve for testers and help QA teams meet timelines
+4.Readability - Improves readability due to clean seperation between test code and page specific code
+Very beneficial for beginners and even experienced people joining a new team
+
+Page Object Model + Data Driven  = Hybrid Framework
+Single test method multiple sets of data
+
+Advantage:
+All advantages of POM + Data Driven Testing
+
+==========================================================================================================================================================
+Step1:
+Project setup
+Create a Maven project . Add dependencies to pom.xml
+
+a) selenium java
+<dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>4.1.4</version>
+</dependency>
+
+b) selenium server   - is just as a back up in case if selenium  java had any glitch and left downloading any jars
+<dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-server</artifactId>
+    <version>3.141.59</version>
+</dependency>
+
+c)testng
+<dependency>
+    <groupId>org.testng</groupId>
+    <artifactId>testng</artifactId>
+    <version>7.6.0</version>
+    <scope>test</scope>
+</dependency>
+
+d)hamcrest-core
+<!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core -->
+<dependency>
+    <groupId>org.hamcrest</groupId>
+    <artifactId>hamcrest-core</artifactId>
+    <version>2.2</version>
+    <scope>test</scope>
+</dependency>
+e)junit
+<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+f)WebDriverManager
+<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+<dependency>
+    <groupId>io.github.bonigarcia</groupId>
+    <artifactId>webdrivermanager</artifactId>
+    <version>5.2.0</version>
+</dependency>
+
+
+==========================================================================================================================================================
+Practice website:
+letsKodeit.teachable.com
+
+dont automate recaptcha
+
+goto https://letskodeit.com/
+and there we have Practice - Element Practice | ECommercePractice
+
+https://courses.letskodeit.com/practice
+
+==========================================================================================================================================================
+Selenium 4 new syntax:
+
+//implicit wait
+driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+//Explicit Wait
+WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
+WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("")));
+
+//DesiredCapabilities is Deprecated
+//so use ChromeOptions
+ChromeOptions options = new ChromeOptions();
+==========================================================================================================================================================
+Reasons why framework is needed
+
+Understanding Test scenario:
+Create a package inside src/test/java - com.hybrid.overview
+Create a class LoginTests 
+
+lets automate login scenario on website - https://learn.letskodeit.com/
+
+************************************   Using this practice website - https://askomdch.com/      **********************************
+username - demosite
+email - demosite@gmail.com
+password - demosite@gmail.com
+
+
+a test case without framework
+
+public class LoginTests {
+
+	WebDriver driver;
+	String baseURL;
+
+	@BeforeClass
+	public void beforeClass() {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		baseURL = "https://askomdch.com/account/";
+		driver.get(baseURL);
+	}
+
+	@Test
+	public void testLogin() {
+		driver.findElement(By.id("username")).clear();
+		driver.findElement(By.id("username")).sendKeys("demosite@gmail.com");
+
+		WebElement passwordElement = driver.findElement(By.id("password"));
+		passwordElement.clear();
+		passwordElement.sendKeys("demosite@gmail.com");
+
+		driver.findElement(By.name("login")).click();
+
+		WebElement LogoutBtn = null;
+		try {
+			LogoutBtn = driver.findElement(By.linkText("Logout"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Assert.assertNotNull(LogoutBtn);
+		LogoutBtn.click();
+	}
+}
+
+
+Problems of No framework testcase:
+It is too long
+it has redundant code
+it is not very readable
+it is using webdriver apis in test methods
+
+Solutions:
+1.We create 2 page classes
+	loginPage class and AllCourses Class
+2.implement functionallity in page class
+3.implicit to point
+4.move all driver actions outside of test class
+
+Always assert in test methods
+==========================================================================================================================================================
+What should a page Object contain?
+
+We can create Page Objects for common components also
+Suppose we have the nav bar/search bar same in all pages , instead of create page objects in each page , we can create it seperately and use everywhere
+Create PageObjects not just for pages , rather for significant common elements
+
+A page is defined by 
+		url , title , elements included in the page , actions user can perform on page
+
+Components of pageObject
+	we can create variables for URLs and Titles
+					    Element Locators(here username and password)
+					    driver variable (to interact with the page)
+
+	Methods in pageObject class: open() a new page
+						searchCourses()  --> all contents of page like courses ,dishes
+						signInWith() --> LoginPage
+		
+					     
+==========================================================================================================================================================
+Real Test Scenario:
+Select a product from available products
+
+Steps:
+Open the website
+Login to application
+Select a product
+
+Expected Result: verify page URL
+			product should be added to cart
+
+Components we need
+TestClass
+LoginPage
+ProductPage
+
+inside src/test/java - create a new package , testclasses
+inside src/main/java - create a new package , pageclasses
+
+inside testclasses package - create a class AllProductsTests
+inside pageclasses package - create a class LoginPage , HomePage
+
+==========================================================================================================================================================
+Understanding test class:
+	
+						----------------
+						| Test Class    |	 
+						----------------
+						  /		\	
+						/		 \
+					    /			  \
+				----------------         ----------------
+				 Test Fixtures            Test Methods
+				----------------		 ----------------
+				/		\		  /		\
+			     /             \		 /           \
+		-----------		  ---------     ---------     ------------
+		SetUp			  TearDown      Test1		  Test2	
+		-----------		  ---------     ---------     -----------
+
+Common code will go in setup method
+Example: @BeforeClass
+	   @BeforeMethod
+
+initializing browser in @BeforeClass , so that we can overcome initializing the browser for each test method
+quitting browser from @AfterClass
+TestClass:
+It may contain multiple test methods
+a test method can represent a test case
+A test method needs an environment to be executed like browser instance or any other common code , this code goes into setup() method - @BeforeClass and @BeforeMethod
+After test is complete , we may need to clean up the environment like closing the browser instance this code goes in tearDown() method - @AfterClass and @AfterMethod
+
+Writing Test method
+Here are few things to consider when writing a test method
+1.it should be as close as possible to test case
+2.it should be easy to understand
+3.it should not have any actions within itself as much as possible
+4.All actions should be called from page classes
+5.All the assertions should be in test method
+
+==========================================================================================================================================================
+public class AllProductsPage {
+
+	WebDriver driver;
+	String baseURL;
+
+	@BeforeClass
+	public void setup() {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		baseURL = "https://askomdch.com/";
+		driver.get(baseURL);
+	}
+
+	@AfterClass
+	public void tearDown() {
+		driver.quit();
+	}
+
+	@Test
+	public void selectProduct() throws InterruptedException {
+
+		HomePage h = new HomePage(driver);
+		AccountPage a = h.openContactPage();
+		a.signIn("demosite@gmail.com", "demosite@gmail.com");
+
+		h = a.goToHomePage();
+		System.out.println(h.productName());
+		h.selectProduct();
+
+	}
+
+}
+
+
+pageClasses:
+public class AccountPage {
+
+	public WebDriver driver;
+
+	public AccountPage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String Email_Field = "username";
+	private String Password_Field = "password";
+	private String Log_In_Btn = "login";
+	private String homePageLink = "//*[@id='menu-item-1226']/a";
+
+	public void signIn(String email, String password) {
+		WebElement emailField = driver.findElement(By.id(Email_Field));
+		emailField.clear();
+		emailField.sendKeys(email);
+
+		WebElement passwordField = driver.findElement(By.id(Password_Field));
+		passwordField.clear();
+		passwordField.sendKeys(password);
+
+		WebElement loginBtn = driver.findElement(By.name(Log_In_Btn));
+		loginBtn.click();
+	}
+
+	public HomePage goToHomePage() {
+
+		driver.findElement(By.xpath(homePageLink)).click();
+		return new HomePage(driver);
+	}
+}
+
+
+public class HomePage {
+
+	public WebDriver driver;
+
+	public HomePage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String Contact = "//a[contains(@href,'account')]";
+	private String product = "//a[contains(text(),'Add to')][1]";
+
+	public AccountPage openContactPage() {
+
+		driver.findElement(By.xpath(Contact)).click();
+		return new AccountPage(driver);
+	}
+
+	public String productName() {
+		return driver.findElement(By.xpath(product)).getText();
+	}
+	public void selectProduct() {
+		driver.findElement(By.xpath(product)).click();
+	}
+}
+
+==========================================================================================================================================================
+How to return PageObjects?
+If a new page is the result of an action(method) then the method should return the page object of the new page
+
+public HomePage goToHomePage() {
+	driver.findElement(By.xpath(homePageLink)).click();
+	return new HomePage(driver);
+}
+
+
+==========================================================================================================================================================
+Adding Test methods and page Classes:
+
+public class AllProductsPage {
+
+	WebDriver driver;
+	String baseURL;
+
+	@BeforeClass
+	public void setup() {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		baseURL = "https://askomdch.com/";
+		driver.get(baseURL);
+	}
+
+	@AfterClass
+	public void tearDown() {
+		driver.quit();
+	}
+
+	@Test
+	public void selectProduct() throws InterruptedException {
+
+		HomePage h = new HomePage(driver);
+		AccountPage a = h.openContactPage();
+		a.signIn("demosite@gmail.com", "demosite@gmail.com");
+
+		h = a.goToHomePage();
+		System.out.println(h.productName());
+		h.selectProduct();
+
+	}
+
+	@Test
+	public void purchaseproduct() {
+		HomePage h = new HomePage(driver);
+		h.selectProduct();
+		CartPage c = h.gotoCart();
+		CheckoutPage cp = c.proceedToCheckOut();
+		Successpage sp = cp.billingfName("Apple").billinglName("Apple").addressLine("asdfn").city("ndsdf")
+				.zipCode("90011").emailAddress("askomdch@gmail.com").placeOrder();
+		String SuccessMSG = sp.getSuccessmsg();
+		Assert.assertEquals(SuccessMSG, "Thank you. Your order has been received.");
+
+	}
+
+}
+
+
+public class AccountPage {
+
+	public WebDriver driver;
+
+	public AccountPage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String Email_Field = "username";
+	private String Password_Field = "password";
+	private String Log_In_Btn = "login";
+	private String homePageLink = "//*[@id='menu-item-1226']/a";
+
+	public void signIn(String email, String password) {
+		WebElement emailField = driver.findElement(By.id(Email_Field));
+		emailField.clear();
+		emailField.sendKeys(email);
+
+		WebElement passwordField = driver.findElement(By.id(Password_Field));
+		passwordField.clear();
+		passwordField.sendKeys(password);
+
+		WebElement loginBtn = driver.findElement(By.name(Log_In_Btn));
+		loginBtn.click();
+	}
+
+	public HomePage goToHomePage() {
+
+		driver.findElement(By.xpath(homePageLink)).click();
+		return new HomePage(driver);
+	}
+}
+
+public class HomePage {
+
+	public WebDriver driver;
+
+	public HomePage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String Contact = "//a[contains(@href,'account')]";
+	private String product = "//a[contains(text(),'Add to')][1]";
+	private String viewCart = "a[title='View cart']";
+
+	public AccountPage openContactPage() {
+
+		driver.findElement(By.xpath(Contact)).click();
+		return new AccountPage(driver);
+	}
+
+	public String productName() {
+		return driver.findElement(By.xpath(product)).getText();
+	}
+
+	public void selectProduct() {
+		driver.findElement(By.xpath(product)).click();
+	}
+	
+	public CartPage gotoCart() {
+		driver.findElement(By.cssSelector(viewCart)).click();
+		return new CartPage(driver);
+	}
+}
+
+public class CartPage {
+
+	public WebDriver driver;
+
+	public CartPage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String proceed_checkout = "//a[contains(@href,'checkout')]";
+
+	public CheckoutPage proceedToCheckOut() {
+		driver.findElement(By.xpath(proceed_checkout)).click();
+		return new CheckoutPage(driver);
+	}
+}
+
+public class CheckoutPage {
+	public WebDriver driver;
+
+	public CheckoutPage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	private String billing_fname = "billing_first_name";
+	private String billing_lname = "billing_last_name";
+	private String address = "billing_address_1";
+	private String city = "billing_city";
+	private String code = "billing_postcode";
+	private String emailAdd = "billing_email";
+	private String placeOrder = "place_order";
+
+	public CheckoutPage billingfName(String name) {
+		driver.findElement(By.id(billing_fname)).sendKeys(name);
+		return this;
+	}
+
+	public CheckoutPage billinglName(String name) {
+		driver.findElement(By.id(billing_lname)).sendKeys(name);
+		return this;
+	}
+
+	public CheckoutPage addressLine(String name) {
+		driver.findElement(By.id(address)).sendKeys(name);
+		return this;
+	}
+
+	public CheckoutPage city(String name) {
+		driver.findElement(By.id(city)).sendKeys(name);
+		return this;
+	}
+
+	public CheckoutPage zipCode(String name) {
+		driver.findElement(By.id(code)).sendKeys(name);
+		return this;
+	}
+
+	public CheckoutPage emailAddress(String email) {
+		driver.findElement(By.id(emailAdd)).sendKeys(email);
+		return this;
+	}
+
+	public Successpage placeOrder() {
+		driver.findElement(By.id(placeOrder)).click();
+		return new Successpage(driver);
+	}
+
+}
+
+public class Successpage {
+
+	public WebDriver driver;
+	public Successpage(WebDriver driver) {
+		this.driver =driver;
+	}
+	
+	private String msg = "//p[contains(@class,'thankyou')]";
+	
+	public String getSuccessmsg() {
+		return driver.findElement(By.xpath(msg)).getText();
+	}
+}
+==========================================================================================================================================================
+How to remove test dependency:
+Each method should be completely independent and self-sufficient
+
+Advantages:
+1.Clean Start
+2.Stable Independent test methods
+
+==========================================================================================================================================================
+
