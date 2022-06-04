@@ -1,25 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results ignored="1" total="2" passed="1" failed="0" skipped="0">
+<testng-results ignored="0" total="4" passed="4" failed="0" skipped="0">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2022-06-03T12:03:16 IST" name="Default suite" finished-at="2022-06-03T12:03:33 IST" duration-ms="16723">
+  <suite started-at="2022-06-04T12:05:46 IST" name="Regression Suite" finished-at="2022-06-04T12:06:16 IST" duration-ms="30285">
     <groups>
     </groups>
-    <test started-at="2022-06-03T12:03:16 IST" name="Default test" finished-at="2022-06-03T12:03:33 IST" duration-ms="16723">
-      <class name="com.hybrid.testcases.AllProductsPage">
-        <test-method is-config="true" signature="setup()[pri:0, instance:com.hybrid.testcases.AllProductsPage@1a942c18]" started-at="2022-06-03T12:03:16 IST" name="setup" finished-at="2022-06-03T12:03:23 IST" duration-ms="6714" status="PASS">
+    <test started-at="2022-06-04T12:05:46 IST" name="Application Test" finished-at="2022-06-04T12:06:16 IST" duration-ms="30285">
+      <class name="com.hybrid.overview.LoginTests">
+        <test-method is-config="true" signature="commonSetup()[pri:0, instance:com.hybrid.overview.LoginTests@1ffaf86]" started-at="2022-06-04T12:05:46 IST" name="commonSetup" finished-at="2022-06-04T12:05:50 IST" duration-ms="4189" status="PASS">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- setup -->
-        <test-method signature="purchaseproduct()[pri:0, instance:com.hybrid.testcases.AllProductsPage@1a942c18]" started-at="2022-06-03T12:03:23 IST" name="purchaseproduct" finished-at="2022-06-03T12:03:32 IST" duration-ms="9600" status="PASS">
+        </test-method> <!-- commonSetup -->
+        <test-method signature="testLogin()[pri:0, instance:com.hybrid.overview.LoginTests@1ffaf86]" started-at="2022-06-04T12:05:50 IST" name="testLogin" finished-at="2022-06-04T12:05:54 IST" duration-ms="3215" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testLogin -->
+        <test-method is-config="true" signature="commonTearDown()[pri:0, instance:com.hybrid.overview.LoginTests@1ffaf86]" started-at="2022-06-04T12:05:54 IST" name="commonTearDown" finished-at="2022-06-04T12:05:54 IST" duration-ms="343" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- commonTearDown -->
+      </class> <!-- com.hybrid.overview.LoginTests -->
+      <class name="com.hybrid.testcases.AllProductsTest">
+        <test-method is-config="true" signature="commonSetup()[pri:0, instance:com.hybrid.testcases.AllProductsTest@55a147cc]" started-at="2022-06-04T12:05:59 IST" name="commonSetup" finished-at="2022-06-04T12:06:02 IST" duration-ms="3521" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- commonSetup -->
+        <test-method signature="purchaseproduct()[pri:0, instance:com.hybrid.testcases.AllProductsTest@55a147cc]" started-at="2022-06-04T12:06:02 IST" name="purchaseproduct" finished-at="2022-06-04T12:06:12 IST" duration-ms="10000" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- purchaseproduct -->
-        <test-method is-config="true" signature="tearDown()[pri:0, instance:com.hybrid.testcases.AllProductsPage@1a942c18]" started-at="2022-06-03T12:03:32 IST" name="tearDown" finished-at="2022-06-03T12:03:33 IST" duration-ms="330" status="PASS">
+        <test-method signature="selectProduct()[pri:0, instance:com.hybrid.testcases.AllProductsTest@55a147cc]" started-at="2022-06-04T12:06:12 IST" name="selectProduct" finished-at="2022-06-04T12:06:16 IST" duration-ms="3729" status="PASS">
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- tearDown -->
-      </class> <!-- com.hybrid.testcases.AllProductsPage -->
-    </test> <!-- Default test -->
-  </suite> <!-- Default suite -->
+        </test-method> <!-- selectProduct -->
+        <test-method is-config="true" signature="commonTearDown()[pri:0, instance:com.hybrid.testcases.AllProductsTest@55a147cc]" started-at="2022-06-04T12:06:16 IST" name="commonTearDown" finished-at="2022-06-04T12:06:16 IST" duration-ms="414" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- commonTearDown -->
+      </class> <!-- com.hybrid.testcases.AllProductsTest -->
+      <class name="com.hybrid.testcases.Demo">
+        <test-method is-config="true" signature="commonSetup()[pri:0, instance:com.hybrid.testcases.Demo@1a942c18]" started-at="2022-06-04T12:05:54 IST" name="commonSetup" finished-at="2022-06-04T12:05:57 IST" duration-ms="2632" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- commonSetup -->
+        <test-method signature="demo()[pri:0, instance:com.hybrid.testcases.Demo@1a942c18]" started-at="2022-06-04T12:05:57 IST" name="demo" finished-at="2022-06-04T12:05:58 IST" duration-ms="1823" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- demo -->
+        <test-method is-config="true" signature="commonTearDown()[pri:0, instance:com.hybrid.testcases.Demo@1a942c18]" started-at="2022-06-04T12:05:58 IST" name="commonTearDown" finished-at="2022-06-04T12:05:59 IST" duration-ms="337" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- commonTearDown -->
+      </class> <!-- com.hybrid.testcases.Demo -->
+    </test> <!-- Application Test -->
+  </suite> <!-- Regression Suite -->
 </testng-results>

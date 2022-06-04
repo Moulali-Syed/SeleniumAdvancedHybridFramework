@@ -1,37 +1,22 @@
 package com.hybrid.overview;
 
-import java.time.Duration;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import com.hybrid.base.BaseTest;
 
-public class LoginTests {
-
-	WebDriver driver;
-	String baseURL;
-
-	@BeforeClass
-	public void beforeClass() {
-		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-		baseURL = "https://askomdch.com/account/";
-		driver.get(baseURL);
-	}
+public class LoginTests extends BaseTest {
 
 	@Test
 	public void testLogin() {
-		driver.findElement(By.id("username")).clear();
-		driver.findElement(By.id("username")).sendKeys("demosite@gmail.com");
 
-		WebElement passwordElement = driver.findElement(By.id("password"));
+		driver.findElement(By.xpath("//a[contains(@href,'account')]")).click();
+		driver.findElement(By.cssSelector("input#username")).clear();
+		driver.findElement(By.cssSelector("input#username")).sendKeys("demosite@gmail.com");
+
+		WebElement passwordElement = driver.findElement(By.cssSelector("input#password"));
 		passwordElement.clear();
 		passwordElement.sendKeys("demosite@gmail.com");
 

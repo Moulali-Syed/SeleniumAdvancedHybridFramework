@@ -9,6 +9,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.hybrid.base.BaseTest;
 import com.hybrid.pageclasses.AccountPage;
 import com.hybrid.pageclasses.CartPage;
 import com.hybrid.pageclasses.CheckoutPage;
@@ -18,30 +19,17 @@ import com.hybrid.pageclasses.Successpage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 
-public class AllProductsPage {
+public class AllProductsTest extends BaseTest{
 
-	WebDriver driver;
-	String baseURL;
-
-	@BeforeClass
-	public void setup() {
-		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-		baseURL = "https://askomdch.com/";
-		driver.get(baseURL);
-	}
-
-	@AfterClass
-	public void tearDown() {
-		driver.quit();
-	}
-
+	HomePage h;
+	AccountPage a;
 	@Test
 	public void selectProduct() throws InterruptedException {
 
-		HomePage h = new HomePage(driver);
-		AccountPage a = h.openContactPage();
+		 h = new HomePage(driver);
+//		 boolean result = h.verifyContent();
+//		 System.out.println(result);
+		a = h.openContactPage();
 		a.signIn("demosite@gmail.com", "demosite@gmail.com");
 
 		h = a.goToHomePage();
@@ -51,8 +39,10 @@ public class AllProductsPage {
 	}
 
 	@Test
-	public void purchaseproduct() {
-		HomePage h = new HomePage(driver);
+	public void purchaseproduct() throws InterruptedException {
+//		HomePage h = new HomePage(driver);
+//		h.selectProduct();
+		h = new HomePage(driver);
 		h.selectProduct();
 		CartPage c = h.gotoCart();
 		CheckoutPage cp = c.proceedToCheckOut();

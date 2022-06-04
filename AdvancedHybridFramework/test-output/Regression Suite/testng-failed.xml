@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Regression Suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Application Test(failed)">
+    <classes>
+      <class name="com.hybrid.testcases.AllProductsTest">
+        <methods>
+          <include name="purchaseproduct"/>
+          <include name="selectProduct"/>
+          <include name="commonSetup"/>
+          <include name="commonTearDown"/>
+        </methods>
+      </class> <!-- com.hybrid.testcases.AllProductsTest -->
+      <class name="com.hybrid.testcases.Demo">
+        <methods>
+          <include name="demo"/>
+          <include name="commonTearDown"/>
+          <include name="commonSetup"/>
+        </methods>
+      </class> <!-- com.hybrid.testcases.Demo -->
+      <class name="com.hybrid.overview.LoginTests">
+        <methods>
+          <include name="commonSetup"/>
+          <include name="commonTearDown"/>
+          <include name="testLogin"/>
+        </methods>
+      </class> <!-- com.hybrid.overview.LoginTests -->
+    </classes>
+  </test> <!-- Application Test(failed) -->
+</suite> <!-- Failed suite [Regression Suite] -->

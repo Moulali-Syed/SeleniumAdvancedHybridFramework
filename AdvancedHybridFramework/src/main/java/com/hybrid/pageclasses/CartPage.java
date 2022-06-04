@@ -3,11 +3,14 @@ package com.hybrid.pageclasses;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-public class CartPage {
+import com.hybrid.base.BasePage;
+
+public class CartPage extends BasePage {
 
 	public WebDriver driver;
 
 	public CartPage(WebDriver driver) {
+		super(driver);
 		this.driver = driver;
 	}
 

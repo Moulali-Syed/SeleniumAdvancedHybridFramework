@@ -1,12 +1,16 @@
 package com.hybrid.pageclasses;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 
-public class CheckoutPage {
+import com.hybrid.base.BasePage;
+
+public class CheckoutPage extends BasePage {
 	public WebDriver driver;
 
 	public CheckoutPage(WebDriver driver) {
+		super(driver);
 		this.driver = driver;
 	}
 
@@ -49,7 +53,14 @@ public class CheckoutPage {
 	}
 
 	public Successpage placeOrder() {
-		driver.findElement(By.id(placeOrder)).click();
+
+		try {
+			driver.findElement(By.id(placeOrder)).click();
+		} catch (Exception e) {
+			JavascriptExecutor executor = (JavascriptExecutor) driver;
+			executor.executeScript("arguments[0].click();", driver.findElement(By.id(placeOrder)));
+		}
+
 		return new Successpage(driver);
 	}
 

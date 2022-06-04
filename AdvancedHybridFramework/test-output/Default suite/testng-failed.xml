@@ -3,13 +3,13 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="com.hybrid.testcases.AllProductsPage">
+      <class name="com.hybrid.overview.LoginTests">
         <methods>
-          <include name="setup"/>
-          <include name="tearDown"/>
-          <include name="selectProduct"/>
+          <include name="commonTearDown"/>
+          <include name="commonSetup"/>
+          <include name="testLogin"/>
         </methods>
-      </class> <!-- com.hybrid.testcases.AllProductsPage -->
+      </class> <!-- com.hybrid.overview.LoginTests -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

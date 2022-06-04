@@ -1,0 +1,431 @@
+How to add multiple testcases
+
+In page object classes we can have a method which directly validates user is logged in , by using the avatar , or any element which shows that user is 
+signed in and use it
+we can call method that will return true or false
+
+in test classes if we want to logout and also ensure we r on correct page for next test method
+we should use @Aftermethod and logout from application
+========================================================================================================================================================
+How to run multiple test classes:
+right click on project - convert to testng- this creates testng.xml file
+
+=======================================================================================================================================================
+Base Test
+create a new package inside src/test/java - com.hybrid.base
+create a class BaseTest
+
+public class BaseTest {
+
+	public WebDriver driver;
+	protected String baseURL;
+
+	@BeforeClass
+	public void commonSetup() {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+		baseURL = "https://askomdch.com/";
+		driver.get(baseURL);
+	}
+
+	@AfterClass
+	public void commonTearDown() {
+		driver.quit();
+	}
+
+}
+
+========================================================================================================================================================
+
+one browser instance per test class
+Every test class should have a clean browser instance
+No dependency on other test classes to leave the browser in correct state
+
+1.previous test class has any expected error pop ups
+2.For any large object application , browser memory runs out
+3.Any other unexpected issues which may leave the browser in unprecedent state
+It will fail all consecutive test classes
+========================================================================================================================================================
+Base Page class:
+in some applications modal window and element attributes were same for all success messages
+Message text was different depending on the action
+
+Since we need to find the same element for different messages , that can be done in a single common method
+
+It can be implemented in a base page class instead of individual classes
+
+Put all the common code to page classes in BasePage class
+Page classes will inherit from the BasePage class
+
+
+inside src/main java - create a package , com.hybrid.base
+
+public class BasePage {
+
+	WebDriver driver;
+
+	public BasePage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	public boolean verifyTitle(String expectedTitle) {
+		return driver.getTitle().equalsIgnoreCase(expectedTitle);
+	}
+}
+
+place the code that is something to be done in common to all the Page Classes 
+and use it in all page classes , by inheriting and place the super(driver) inside all page class constructors
+
+
+public class Successpage extends BasePage {
+
+	public WebDriver driver;
+
+	public Successpage(WebDriver driver) {
+		super(driver);
+		this.driver = driver;
+	}
+
+	private String msg = "//p[contains(@class,'thankyou')]";
+
+	public String getSuccessmsg() {
+		return driver.findElement(By.xpath(msg)).getText();
+	}
+}
+
+========================================================================================================================================================
+
+Util class:
+inside src/main/java - create package com.hybrid.utilities
+create a class - Util
+
+the methods which helps in our framework, we always need a lot of utility methods which we can quickly use in the framework 
+Example: generating string with random letters
+
+check the Util class
+
+
+usage of util class in testclasses
+we can use in page class and call in the test methods
+public boolean verifyContent() {
+		WebElement cont = driver.findElement(By.cssSelector(content));
+		String text = cont.getText();
+		return Util.verifyTextContains(text, "Raining Offers for Hot Summer!");
+	}
+
+inside test methods
+ boolean result = h.verifyContent();
+========================================================================================================================================================
+Custom Driver:
+inside src/main/java - base package - create a class CustomDriver
+
+check CustomDriver class for all the methods
+
+It helps us with logging
+Helps us with Exception handling
+Helps  us with modification/customization of default Selenium WebDriver methods . Example:SendData
+
+CustomerDriver.java class once ready with all the custom methods , inherit this to BasePage and add this in constructor of BasePage - super(driver);
+
+public class BasePage extends CustomDriver {
+
+	WebDriver driver;
+
+	public BasePage(WebDriver driver) {
+		super(driver);
+		this.driver = driver;
+	}
+
+	public boolean verifyTitle(String expectedTitle) {
+		return driver.getTitle().equalsIgnoreCase(expectedTitle);
+	}
+}
+
+
+As all page classes already inherited BasePage we can use all the CustomDriver class methods inside all pageObject class
+
+Now modify all the page classes by utilising the CustomDriver methods
+
+
+public class AccountPage extends BasePage {
+
+	public WebDriver driver;
+
+	public AccountPage(WebDriver driver) {
+		super(driver);
+		this.driver = driver;
+	}
+
+	private String Email_Field = "id=>username";
+	private String Password_Field = "id=>password";
+	private String Log_In_Btn = "name=>login";
+	private String homePageLink = "xpath=>//*[@id='menu-item-1226']/a";
+
+	public void signIn(String email, String password) {
+		
+		WebElement emailField = getElement(Email_Field,"mailIdField");
+//		WebElement emailField = driver.findElement(By.id(Email_Field));
+		sendData(emailField,email,"mailId",true);
+//		emailField.clear();
+//		emailField.sendKeys(email);
+
+		WebElement passwordField = getElement(Password_Field,"PasswordField");
+//		WebElement passwordField = driver.findElement(By.id(Password_Field));
+		sendData(passwordField,password,"password",true);
+//		passwordField.clear();
+//		passwordField.sendKeys(password);
+		WebElement loginBtn = getElement(Log_In_Btn,"LogInBtn");
+//		WebElement loginBtn = driver.findElement(By.name(Log_In_Btn));
+		elementClick(loginBtn,"ClickOnLoginBtn");
+	}
+
+	public HomePage goToHomePage() {
+		WebElement loginBtn = getElement(homePageLink,"HomePageLink");
+		elementClick(loginBtn,"ClickOnHomePage");
+//		driver.findElement(By.xpath(homePageLink)).click();
+		return new HomePage(driver);
+	}
+}
+
+========================================================================================================================================================
+WebDriver Factory:
+Modifications driver -> at single point
+also make driver thread safe
+
+We use 
+Singleton Design Pattern
+	1.one instance of class exist at time
+	2.Declare separate method for creating an object
+
+Factory Design Pattern
+
+inside src/test/java - base package -create a class
+1.singleton design pattern
+	create a private static final object of the class
+	private static final WebDriverFactory instance = new WebDriverFactory();
+	
+	create a private constructor - thus no other class can create object for it
+	private WebDriverFactory() {
+		
+	}
+
+	create a method to access the object created
+	public static WebDriverFactory getInstance() {
+		return instance;
+	}
+
+
+public class WebDriverFactory {
+
+	// SingleTon
+	// only one instance of class exist at a time
+	private static final WebDriverFactory instance = new WebDriverFactory();
+
+	// private constructor
+	private WebDriverFactory() {
+
+	}
+
+	public static WebDriverFactory getInstance() {
+		return instance;
+	}
+
+	// this gives each thread a seperate instance of object - when running in
+	// parallel each test will have
+	// a seperate thread copy by default
+	private static ThreadLocal<WebDriver> threadedDriver = new ThreadLocal<WebDriver>();
+
+	public WebDriver getDriver(String browser) {
+		WebDriver driver = null;
+		if (threadedDriver.get() == null) {
+			try {
+				if (browser.equalsIgnoreCase("firefox")) {
+					WebDriverManager.firefoxdriver().setup();
+					driver = new FirefoxDriver();
+					threadedDriver.set(driver);
+				}
+
+				if (browser.equalsIgnoreCase("chrome")) {
+					WebDriverManager.chromedriver().setup();
+					driver =new ChromeDriver();
+					threadedDriver.set(driver);
+				}
+
+				if (browser.equalsIgnoreCase("edge")) {
+					WebDriverManager.edgedriver().setup();
+					driver =new EdgeDriver();
+					threadedDriver.set(driver);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		threadedDriver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+		threadedDriver.get().manage().window().maximize();
+
+		return threadedDriver.get();
+	}
+	
+	public void quitDriver() {
+		threadedDriver.get().quit();
+		threadedDriver.set(null);
+	}
+}
+
+public class BaseTest {
+
+	public WebDriver driver;
+	protected String baseURL;
+
+	@BeforeClass
+	public void commonSetup() {
+		driver = WebDriverFactory.getInstance().getDriver("chrome");
+		baseURL = "https://askomdch.com/";
+		driver.get(baseURL);
+	}
+
+	@AfterClass
+	public void commonTearDown() {
+//		driver.quit();
+		WebDriverFactory.getInstance().quitDriver();
+	}
+
+}
+
+
+
+Better use WebDriverManager or store drivers in drivers folder at project level 
+also better know if the third party plugin is not working we can use
+
+ private void setDriver(String browser) {
+        String driverPath = "";
+        String os = System.getProperty("os.name").toLowerCase().substring(0, 3);
+        System.out.println("OS Name from system property :: " + os);
+        String directory = System.getProperty("user.dir") + "//drivers//";
+        String driverKey = "";
+        String driverValue = "";
+
+        if (browser.equalsIgnoreCase("firefox")) {
+            driverKey = "webdriver.gecko.driver";
+            driverValue = "geckodriver";
+        } else if (browser.equalsIgnoreCase("chrome")) {
+            driverKey = "webdriver.chrome.driver";
+            driverValue = "chromedriver";
+        } else if (browser.equalsIgnoreCase("ie")) {
+            driverKey = "webdriver.ie.driver";
+            driverValue = "IEDriverServer";
+        } else {
+            System.out.println("Browser type not supported");
+        }
+
+        driverPath = directory + driverValue + (os.equals("win") ? ".exe" : "");
+        System.out.println("Driver Binary :: " + driverPath);
+        System.setProperty(driverKey, driverPath);
+    }
+
+
+set the browser options:
+
+ /***
+     * Set Chrome Options
+     * @return options
+     */
+    private ChromeOptions setChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("disable-infobars");
+        return options;
+    }
+
+    /***
+     * Set Firefox Options
+     * @return options
+     */
+    private FirefoxOptions setFFOptions() {
+        FirefoxOptions options = new FirefoxOptions();
+        options.setCapability(CapabilityType.HAS_NATIVE_EVENTS, false);
+        return options;
+    }
+
+    /***
+     * Set Internet Explorer Options
+     * @return options
+     */
+    private InternetExplorerOptions setIEOptions() {
+        InternetExplorerOptions options = new InternetExplorerOptions();
+        options.setCapability(InternetExplorerDriver.NATIVE_EVENTS, false);
+        options.setCapability(InternetExplorerDriver.ENABLE_PERSISTENT_HOVERING, false);
+        options.setCapability(InternetExplorerDriver.REQUIRE_WINDOW_FOCUS, false);
+        options.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
+        options.setCapability(InternetExplorerDriver.IGNORE_ZOOM_SETTING, true);
+        options.setCapability(InternetExplorerDriver.
+                INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
+        return options;
+    }
+
+inside getDriver() method , for each driver pass options
+ChromeOptions options = setChromeOptions();
+driver =new ChromeDriver(options);
+
+
+
+Automation run on different browsers:
+inside testng.xml file send the browser parameter
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Regression Suite">
+  <test  name="Application Test" preserve-order="true">
+<parameter name="browser" value="chrome"></parameter>
+    <classes>
+      <class name="com.hybrid.overview.LoginTests"/>
+      <class name="com.hybrid.testcases.Demo"/>
+      <class name="com.hybrid.testcases.AllProductsTest"/>
+    </classes>
+  </test> <!-- Test -->
+</suite> <!-- Suite -->
+
+Then in BaseTest.java , @BeforeClass
+
+public class BaseTest {
+
+	public WebDriver driver;
+	protected String baseURL;
+
+	@BeforeClass
+	@Parameters({"browser"})
+	public void commonSetup(String browser) {
+		driver = WebDriverFactory.getInstance().getDriver(browser);
+		baseURL = "https://askomdch.com/";
+		driver.get(baseURL);
+	}
+
+	@AfterClass
+	public void commonTearDown() {
+//		driver.quit();
+		WebDriverFactory.getInstance().quitDriver();
+	}
+
+}
+
+========================================================================================================================================================
+
+
+
+
+
+
+
+
+========================================================================================================================================================
+
+
+
+
+
+
+
+
+
+========================================================================================================================================================

@@ -1,0 +1,1224 @@
+Selenium 4 changes:
+package basicweb;
+
+import java.time.Duration;
+//import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class Selenium4NewSyntax {
+
+	public static void main(String[] args) {
+		
+		WebDriver driver = new FirefoxDriver();
+		
+		// Implicit Wait
+		// driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+		
+		// Explicit Wait
+		//WebDriverWait wait = new WebDriverWait(driver, 3);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+		WebElement element = wait.until(
+				ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@href='/login']")));
+		
+		// Desired Capabilities -> Deprecated. Replaced with Options
+		// DesiredCapabilities caps = DesiredCapabilities.firefox();
+		// Example
+		ChromeOptions options = new ChromeOptions();
+	}
+}
+========================================================
+
+testclass without framework
+package com.letskodeit.overview;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import java.util.concurrent.TimeUnit;
+
+public class LoginTests {
+
+    WebDriver driver;
+    String baseURL;
+
+    @BeforeClass
+    public void beForeClass() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+    }
+
+    @Test
+    public void testLogin() {
+        driver.findElement(By.xpath("//a[contains(@href,'sign_in')]")).click();
+        driver.findElement(By.id("user_email")).clear();
+        driver.findElement(By.id("user_email")).sendKeys("test@email.com");
+        WebElement passwordElement = driver.findElement(By.id("user_password"));
+        passwordElement.clear();
+        passwordElement.sendKeys("abcabc");
+        driver.findElement(By.name("commit")).click();
+        WebElement accountImage = null;
+        try {
+            accountImage = driver.findElement(By.className("gravatar"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(accountImage);
+    }
+
+    @Test
+    public void testInValidLogin() {
+        driver.findElement(By.xpath("//a[contains(@href,'sign_in')]")).click();
+        driver.findElement(By.id("user_email")).clear();
+        driver.findElement(By.id("user_email")).sendKeys("test1@email.com");
+        WebElement passwordElement = driver.findElement(By.id("user_password"));
+        passwordElement.clear();
+        passwordElement.sendKeys("abcabc");
+        driver.findElement(By.name("commit")).click();
+        WebElement accountImage = null;
+        try {
+            accountImage = driver.findElement(By.className("gravatar"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Assert.assertNotNull(accountImage);
+    }
+}
+
+================================
+
+Adding test methods
+
+package com.letskodeit.testclasses;
+
+import org.openqa.seleniun.WebDriver;
+import org.openqa.seleniun.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.concurrent.TimeUnit;
+
+public class AllCoursesTests {
+    WebDriver driver;
+    String baseURL;
+
+    @BeforeClass
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+    }
+
+    public void verifySearchCourse() {
+        open();
+        signInWith("test@email.com", "abcabc");
+        searchCourse("rest api");
+        boolean searchResult = verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        driver.quit();
+    }
+}
+============
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class LoginPage {
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * Locators
+     * URL
+     */
+    public WebDriver driver;
+    private String LOGIN_LINK = "//a[@href='/sign_in']"
+    private String EMAIL_FIELD = "user_email";
+    private String PASSWORD_FIELD = "user_password";
+    private String LOG_IN_BUTTON = "commit";
+
+    /***
+     * Methods
+     */
+
+    public void signInWith(String email, String password) {
+        WebElement emailField = driver.findElement(By.id(EMAIL_FIELD));
+        emailField.clear();
+        emailField.sendKeys(email);
+
+        WebElement passwordField = driver.findElement(By.id(PASSWORD_FIELD));
+        passwordField.clear();
+        passwordField.sendKeys(password);
+
+        WebElement loginButton = driver.findElement(By.name(LOG_IN_BUTTON));
+        loginButton.click();
+    }
+}
+
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class AllCoursesPage {
+
+    public AllCoursesPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String URL = "https://learn.letskodeit.com/courses";
+    private String ALL_COURSES_LINK = "//a[contains(text(),'All Courses')]";
+
+    /***
+     * Methods
+     */
+
+    public void open() {
+      driver.findElement(By.xpath(ALL_COURSES_LINK)).click()
+    }
+    public boolean isOpen() {
+        return URL.equalsIgnoreCase(driver.getCurrentUrl());
+    }
+}
+
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+public class ResultsPage {
+
+    public ResultsPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String URL = "query=";
+    private String COURSES_LIST = "//div[@class='course-listing']";
+
+    /***
+     * Methods
+     */
+    public boolean isOpen() {
+        return driver.getCurrentUrl().contains(URL);
+    }
+
+    public int coursesCount() {
+        List<WebElement> coursesList = driver.findElements(By.xpath(COURSES_LIST));
+        return coursesList.size();
+    }
+
+    public boolean verifySearchResult() {
+        boolean result = false;
+        if (coursesCount() > 0) {
+            result = true;
+        }
+        result = isOpen() && result;
+        return result;
+    }
+}
+
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class SearchBarPage {
+
+    public SearchBarPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String SEARCH_COURSE_FIELD = "search-courses";
+    private String SEARCH_COURSE_BUTTON = "search-course-button";
+
+    /***
+     * Methods
+     */
+
+    public void course(String courseName) {
+        WebElement searchField = driver.findElement(By.id(SEARCH_COURSE_FIELD));
+        searchField.clear();
+        searchField.sendKeys(courseName);
+
+        WebElement searchButton = driver.findElement(By.id(SEARCH_COURSE_BUTTON));
+        searchButton.click();
+    }
+}
+
+package com.letskodeit.testclasses;
+
+import org.openqa.seleniun.WebDriver;
+import org.openqa.seleniun.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import com.letskodeit.pageclasses.LoginPage;
+import com.letskodeit.pageclasses.NavigationPage;
+import com.letskodeit.pageclasses.SearchBarPage;
+import com.letskodeit.pageclasses.ResultsPage;
+
+import java.util.concurrent.TimeUnit;
+
+public class AllCoursesTests {
+    WebDriver driver;
+    String baseURL;
+
+    @BeforeClass
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+    }
+
+    public void verifySearchCourse() {
+        LoginPage login = new LoginPage(driver);
+        login.open();
+        login.signInWith("test@email.com", "abcabc");
+        NavigationPage nav = new AllCoursesPage(driver);
+        nav.allCourses();
+        SearchBarPage search = new SearchBarPage(driver);
+        search.course("rest api");
+        ResultsPage result = new ResultsPage(driver);
+        boolean searchResult = result.verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        driver.quit();
+    }
+}
+
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class NavigationPage {
+
+    public NavigationPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String URL = "https://learn.letskodeit.com/courses";
+    private String ALL_COURSES_LINK = "//a[contains(text(),'All Courses')]";
+    private String MY_COURSES_LINK = "//a[contains(text(),'My Courses')]";
+
+    /***
+     * Methods
+     */
+
+    public void allCourses() {
+      driver.findElement(By.xpath(ALL_COURSES_LINK)).click()
+    }
+
+    public void myCourses() {
+      driver.findElement(By.xpath(MY_COURSES_LINK)).click()
+    }
+
+    // public boolean isOpen() {
+    //     return URL.equalsIgnoreCase(driver.getCurrentUrl());
+    // }
+}
+
+
+package com.letskodeit.testclasses;
+
+import com.letskodeit.pageclasses.NavigationPage;
+import com.letskodeit.pageclasses.LoginPage;
+import com.letskodeit.pageclasses.ResultsPage;
+import com.letskodeit.pageclasses.SearchBarPage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.concurrent.TimeUnit;
+
+public class AllCoursesTests {
+    WebDriver driver;
+    String baseURL;
+
+    @BeforeClass
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+    }
+
+    @Test
+    public void verifySearchCourse() {
+        LoginPage login = new LoginPage(driver);
+        login.open();
+        NavigationPage nav = login.signInWith("test@email.com", "abcabc");
+        nav.allCourses();
+        SearchBarPage search = new SearchBarPage(driver);
+        search.course("rest api");
+        ResultsPage result = new ResultsPage(driver);
+        boolean searchResult = result.verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        //driver.quit();
+    }
+}
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class LoginPage {
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * Locators
+     * URL
+     */
+    public WebDriver driver;
+    private String LOGIN_LINK = "//a[@href='/sign_in']";
+    private String EMAIL_FIELD = "user_email";
+    private String PASSWORD_FIELD = "user_password";
+    private String LOG_IN_BUTTON = "commit";
+
+    /***
+     * Methods
+     */
+    public void open() {
+        driver.findElement(By.xpath(LOGIN_LINK)).click();
+    }
+
+    public NavigationPage signInWith(String email, String password) {
+        WebElement emailField = driver.findElement(By.id(EMAIL_FIELD));
+        emailField.clear();
+        emailField.sendKeys(email);
+
+        WebElement passwordField = driver.findElement(By.id(PASSWORD_FIELD));
+        passwordField.clear();
+        passwordField.sendKeys(password);
+
+        WebElement loginButton = driver.findElement(By.name(LOG_IN_BUTTON));
+        loginButton.click();
+
+        return new NavigationPage(driver);
+    }
+}
+
+
+package com.letskodeit.testclasses;
+
+import com.letskodeit.pageclasses.NavigationPage;
+import com.letskodeit.pageclasses.LoginPage;
+import com.letskodeit.pageclasses.ResultsPage;
+import com.letskodeit.pageclasses.SearchBarPage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.concurrent.TimeUnit;
+
+public class AllCoursesTests {
+    WebDriver driver;
+    String baseURL;
+
+    @BeforeClass
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+    }
+
+    @Test
+    public void verifySearchCourse() {
+        LoginPage login = new LoginPage(driver);
+        login.open();
+        NavigationPage nav = login.signInWith("test@email.com", "abcabc");
+        nav.allCourses();
+        SearchBarPage search = new SearchBarPage(driver);
+        ResultsPage result = search.course("rest api");
+        boolean searchResult = result.verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        //driver.quit();
+    }
+}
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class SearchBarPage {
+
+    public SearchBarPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String SEARCH_COURSE_FIELD = "search-courses";
+    private String SEARCH_COURSE_BUTTON = "search-course-button";
+
+    /***
+     * Methods
+     */
+
+    public ResultsPage course(String courseName) {
+        WebElement searchField = driver.findElement(By.id(SEARCH_COURSE_FIELD));
+        searchField.clear();
+        searchField.sendKeys(courseName);
+
+        WebElement searchButton = driver.findElement(By.id(SEARCH_COURSE_BUTTON));
+        searchButton.click();
+
+        return new ResultsPage(driver);
+    }
+}
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+public class ResultsPage {
+
+    public ResultsPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private String URL = "query=";
+    private String COURSES_LIST = "//div[@class='course-listing']";
+
+    /***
+     * Methods
+     */
+    public boolean isOpen() {
+        return driver.getCurrentUrl().contains(URL);
+    }
+
+    public int coursesCount() {
+        List<WebElement> coursesList = driver.findElements(By.xpath(COURSES_LIST));
+        return coursesList.size();
+    }
+
+    public boolean verifySearchResult() {
+        boolean result = false;
+        if (coursesCount() > 0) {
+            result = true;
+        }
+        result = isOpen() && result;
+        return result;
+    }
+
+    public boolean verifyFilterCourseCount(int expectedCount) {
+        return coursesCount() == expectedCount;
+    }
+}
+
+package com.letskodeit.testclasses;
+
+import com.letskodeit.pageclasses.*;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import java.util.concurrent.TimeUnit;
+
+public class AllCoursesTests {
+    WebDriver driver;
+    String baseURL;
+    LoginPage login;
+    NavigationPage nav;
+    SearchBarPage search;
+    ResultsPage result;
+    CategoryFilterPage category;
+
+    @BeforeClass
+    public void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+        login = new LoginPage(driver);
+        login.open();
+        nav = login.signInWith("test@email.com", "abcabc");
+    }
+
+    @Test
+    public void verifySearchCourse() {
+        nav.allCourses();
+        search = new SearchBarPage(driver);
+        result = search.course("rest api");
+        boolean searchResult = result.verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @Test
+    public void filterByCategory() {
+        nav.allCourses();
+        category = new CategoryFilterPage(driver);
+        result = category.select("Software IT");
+        int count = category.findCoursesCount("Software IT");
+        boolean filterResult = result.verifyFilterCourseCount(count);
+        Assert.assertTrue(filterResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        //driver.quit();
+    }
+}
+
+
+package com.letskodeit.pageclasses;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class CategoryFilterPage {
+
+    public CategoryFilterPage(WebDriver driver) {
+        this.driver = driver;
+        js = (JavascriptExecutor) driver;
+    }
+
+    /***
+     * Variables
+     * URL
+     * Title
+     */
+    public WebDriver driver;
+    private JavascriptExecutor js;
+    private String CATEGORY_DROPDOWN = "(//div[contains(@class,'course-filter')])[1]//button";
+    private String CATEGORY_OPTION = "//a[@href='/courses/category/%s']";
+
+    /***
+     * Methods
+     */
+
+    public void clickCategoryDropdown() {
+        // Find category dropdown
+        WebElement categoryDropdown = driver.findElement(By.xpath(CATEGORY_DROPDOWN));
+        categoryDropdown.click();
+    }
+
+    public WebElement findCategory(String categoryName) {
+        clickCategoryDropdown();
+        // Wait for the element to be clickable
+        WebDriverWait wait = new WebDriverWait(driver, 3);
+        WebElement categoryOption = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        By.xpath(String.format(CATEGORY_OPTION, categoryName))));
+        return categoryOption;
+    }
+
+    public ResultsPage select(String categoryName) {
+        WebElement categoryOption = findCategory(categoryName);
+        // Used JavaScript click because this element was having issues with usual click method
+        js.executeScript("arguments[0].click();", categoryOption);
+        return new ResultsPage(driver);
+    }
+
+    public int findCoursesCount(String categoryName) {
+        WebElement categoryOption = findCategory(categoryName);
+        // Get category text
+        String categoryText = categoryOption.getText();
+        // Split on ( symbol
+        // Example: Software IT (2)
+        // Value of arrayTemp[0] ->Software IT
+        // Value of arrayTemp[1] ->2)
+        String[] arrayTemp = categoryText.split("\\(");
+        // Split arrayTemp[1] on ) symbol
+        // Value of [0] ->2
+        String courseCountString = arrayTemp[1].split("\\)")[0];
+        int courseCount = Integer.parseInt(courseCountString);
+        // Click the dropdown again to close the menu
+        clickCategoryDropdown();
+        return courseCount;
+    }
+}
+
+package com.letskodeit.base;
+
+import org.openqa.selenium.WebDriver;
+
+public class BasePage {
+    WebDriver driver;
+
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public boolean verifyTitle(String expectedTitle) {
+        return driver.getTitle().equalsIgnoreCase(expectedTitle);
+    }
+}
+
+package com.letskodeit.pageclasses;
+
+import com.letskodeit.base.BasePage;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+public class LoginPage extends BasePage {
+
+    public LoginPage(WebDriver driver) {
+        super(driver);
+        this.driver = driver;
+    }
+
+    /***
+     * Variables
+     * Locators
+     * URL
+     */
+    public WebDriver driver;
+    private String EMAIL_FIELD = "user_email";
+    private String PASSWORD_FIELD = "user_password";
+    private String LOG_IN_BUTTON = "commit";
+
+    /***
+     * Methods
+     */
+
+    public NavigationPage signInWith(String email, String password) {
+        WebElement emailField = driver.findElement(By.id(EMAIL_FIELD));
+        emailField.clear();
+        emailField.sendKeys(email);
+
+        WebElement passwordField = driver.findElement(By.id(PASSWORD_FIELD));
+        passwordField.clear();
+        passwordField.sendKeys(password);
+
+        WebElement loginButton = driver.findElement(By.name(LOG_IN_BUTTON));
+        loginButton.click();
+
+        return new NavigationPage(driver);
+    }
+}
+
+
+======================
+Util class
+package com.letskodeit.utilities;
+
+import com.google.common.collect.Ordering;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+public class Util {
+
+    /***
+     * Sleep for specified number of milliseconds
+     * @param msec
+     * @param info
+     */
+    public static void sleep(long msec, String info) {
+        if (info != null) {
+            System.out.println("Waiting " + (msec * .001) + " seconds :: " + info);
+        }
+        try {
+            Thread.sleep(msec);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /***
+     * Sleep for specified number of milliseconds
+     * @param msec
+     */
+    public static void sleep(long msec) {
+        sleep(msec, null);
+    }
+
+    /***
+     *
+     * @param methodName
+     * @param browserName
+     * @return
+     */
+    public static String getScreenshotName(String methodName, String browserName) {
+        String localDateTime = getCurrentDateTime();
+        StringBuilder name = new StringBuilder().append(browserName)
+                                                .append("_")
+                                                .append(methodName)
+                                                .append("_")
+                                                .append(localDateTime)
+                                                .append(".png");
+        return name.toString();
+    }
+
+    /***
+     * Get Random number within specified range
+     * @param min
+     * @param max
+     * @return a random number
+     */
+    public static int getRandomNumber(int min, int max) {
+        int diff = max - min;
+        int randomNum = (int)(min + Math.random() * diff);
+        System.out.println("Random Number :: " + randomNum +
+                " within range :: " + min + " and :: " + max);
+        return randomNum;
+    }
+
+    /***
+     * Get Random number within specified range
+     * @param number
+     * @return a random number
+     */
+    public static int getRandomNumber(int number) {
+        return getRandomNumber(1, number);
+    }
+
+    /***
+     * Get random unique string with specified length
+     * @param length
+     * @return a unique string
+     */
+    public static String getRandomString(int length) {
+        StringBuilder sbuilder = new StringBuilder();
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        for (int i = 0; i<length; i++) {
+            int index = (int) (Math.random() * chars.length());
+            sbuilder.append(chars.charAt(index));
+        }
+        String randomString = sbuilder.toString();
+        System.out.println("Random string with length :: "
+                + length + " is :: " + randomString);
+        return randomString;
+    }
+
+    /***
+     * Get random unique string with 10 characters length
+     * @return a unique string
+     */
+    public static String getRandomString() {
+        return getRandomString(10);
+    }
+
+    /***
+     * Get simple date as string in the specified format
+     * @param format MMddyy MMddyyyy
+     * @return date as string type
+     */
+    public static String getSimpleDateFormat(String format){
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        String formattedDate = formatter.format(date);
+        System.out.println("Date with format :: "
+                + format + " :: " + formattedDate);
+        return formattedDate;
+    }
+
+    /***
+     * Get simple date time as string
+     * @return date time as string type
+     */
+    public static String getCurrentDateTime(){
+        Calendar currentDate = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat(
+                "MM/dd/yyyy HH:mm:ss");
+        String date = formatter.format(currentDate.getTime()).replace("/", "_");
+        date = date.replace(":", "_");
+        System.out.println("Date and Time :: " + date);
+        return date;
+    }
+
+    /**
+     * Checks whether actual String contains expected string and prints both in log
+     * @param actualText - actual Text picked up from application under Test
+     * @param expText - expected Text to be checked with actual text
+     * @return boolean result
+     */
+    public static boolean verifyTextContains(String actualText, String expText) {
+        if (actualText.toLowerCase().contains(expText.toLowerCase())){
+            System.out.println("Actual Text From Web Application UI   --> : "+ actualText);
+            System.out.println("Expected Text From Web Application UI --> : "+ expText);
+            System.out.println("### Verification Contains !!!");
+            return true;
+        }
+        else{
+            System.out.println("Actual Text From Web Application UI   --> : "+ actualText);
+            System.out.println("Expected Text From Web Application UI --> : "+ expText);
+            System.out.println("### Verification DOES NOT Contains !!!");
+            return false;
+        }
+
+    }
+
+    /**
+     * Checks whether actual string matches with expected string and prints both in log
+     * @param actualText - actual Text picked up from application under Test
+     * @param expText - expected Text to be matched with actual text
+     * @return
+     */
+    public static boolean verifyTextMatch(String actualText, String expText) {
+        if (actualText.equals(expText)){
+            System.out.println("Actual Text From Web Application UI   --> : "+ actualText);
+            System.out.println("Expected Text From Web Application UI --> : "+ expText);
+            System.out.println("### Verification MATCHED !!!");
+            return true;
+        }else{
+            System.out.println("Actual Text From Web Application UI   --> : "+ actualText);
+            System.out.println("Expected Text From Web Application UI --> : "+ expText);
+            System.out.println("### Verification DOES NOT MATCH !!!");
+            return false;
+        }
+    }
+
+    /**
+     * Verify actual list contains items of the expected list
+     *
+     * @param actList
+     * @param expList
+     * @return
+     */
+    public static Boolean verifyListContains(List<String> actList, List<String> expList) {
+        int expListSize = expList.size();
+        for (int i = 0; i < expListSize; i++) {
+            if (!actList.contains(expList.get(i))) {
+                return false;
+            }
+        }
+        System.out.println("Actual List Contains Expected List !!!");
+        return true;
+    }
+
+    /***
+     * Verify actual list matches expected list
+     * @param actList
+     * @param expList
+     * @return
+     */
+    public static Boolean verifyListMatch(List<String> actList, List<String> expList) {
+        boolean found = false;
+        int actListSize = actList.size();
+        int expListSize = expList.size();
+        if (actListSize != expListSize) {
+            return false;
+        }
+
+        for (int i = 0; i < actListSize; i++) {
+            found = false;
+            for (int j = 0; j < expListSize; j++) {
+                if (verifyTextMatch(actList.get(i), expList.get(j))) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found) {
+            System.out.println("Actual List Matches Expected List !!!");
+            return true;
+        }
+        else {
+            System.out.println("Actual List DOES NOT Match Expected List !!!");
+            return false;
+        }
+    }
+
+    /**
+     * Verifies item is present in the list
+     * @param actList
+     * @param item
+     * @return boolean result
+     */
+    public static Boolean verifyItemPresentInList(List<String> actList, String item){
+        int actListSize = actList.size();
+        for (int i = 0; i < actListSize; i++) {
+            if (!actList.contains(item)) {
+                System.out.println("Item is NOT present in List !!!");
+                return false;
+            }
+        }
+        System.out.println("Item is present in List !!!");
+        return true;
+    }
+
+    /**
+     * Verify if list is in ascending order
+     * @param list
+     * @return boolean result
+     */
+    public static boolean isListAscendingOrder(List<Long> list){
+        boolean sorted = Ordering.natural().isOrdered(list);
+        return sorted;
+    }
+}
+
+=================
+package com.letskodeit.base;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
+import org.openqa.selenium.remote.CapabilityType;
+
+import java.util.concurrent.TimeUnit;
+
+public class WebDriverFactory {
+    // Singleton
+    // Only one instance of the class can exist at a time
+    private static final WebDriverFactory instance = new WebDriverFactory();
+
+    private WebDriverFactory() {
+    }
+
+    public static WebDriverFactory getInstance() {
+        return instance;
+    }
+
+    private static ThreadLocal<WebDriver> threadedDriver = new ThreadLocal<WebDriver>();
+
+    /***
+     * Get driver instance based on the browser type
+     * @param browser
+     * @return
+     */
+    public WebDriver getDriver(String browser) {
+        WebDriver driver = null;
+        setDriver(browser);
+        if (threadedDriver.get() == null) {
+            try {
+                if (browser.equalsIgnoreCase("firefox")) {
+                    FirefoxOptions ffOptions = setFFOptions();
+                    driver = new FirefoxDriver(ffOptions);
+                    threadedDriver.set(driver);
+                }
+                if (browser.equalsIgnoreCase("chrome")) {
+                    ChromeOptions chromeOptions = setChromeOptions();
+                    driver = new ChromeDriver(chromeOptions);
+                    threadedDriver.set(driver);
+                }
+                if (browser.equalsIgnoreCase("iexplorer")) {
+                    InternetExplorerOptions ieOptions = setIEOptions();
+                    driver = new InternetExplorerDriver(ieOptions);
+                    threadedDriver.set(driver);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            threadedDriver.get().manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            threadedDriver.get().manage().window().maximize();
+        }
+        return threadedDriver.get();
+    }
+
+    /***
+     * Quit driver instance
+     */
+    public void quitDriver() {
+        threadedDriver.get().quit();
+        threadedDriver.set(null);
+    }
+
+    /***
+     * Set system path for driver files
+     * @param browser
+     */
+    private void setDriver(String browser) {
+        String driverPath = "";
+        String os = System.getProperty("os.name").toLowerCase().substring(0, 3);
+        System.out.println("OS Name from system property :: " + os);
+        String directory = System.getProperty("user.dir") + "//drivers//";
+        String driverKey = "";
+        String driverValue = "";
+
+        if (browser.equalsIgnoreCase("firefox")) {
+            driverKey = "webdriver.gecko.driver";
+            driverValue = "geckodriver";
+        } else if (browser.equalsIgnoreCase("chrome")) {
+            driverKey = "webdriver.chrome.driver";
+            driverValue = "chromedriver";
+        } else if (browser.equalsIgnoreCase("ie")) {
+            driverKey = "webdriver.ie.driver";
+            driverValue = "IEDriverServer";
+        } else {
+            System.out.println("Browser type not supported");
+        }
+
+        driverPath = directory + driverValue + (os.equals("win") ? ".exe" : "");
+        System.out.println("Driver Binary :: " + driverPath);
+        System.setProperty(driverKey, driverPath);
+    }
+
+    /***
+     * Set Chrome Options
+     * @return options
+     */
+    private ChromeOptions setChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("disable-infobars");
+        return options;
+    }
+
+    /***
+     * Set Firefox Options
+     * @return options
+     */
+    private FirefoxOptions setFFOptions() {
+        FirefoxOptions options = new FirefoxOptions();
+        options.setCapability(CapabilityType.HAS_NATIVE_EVENTS, false);
+        return options;
+    }
+
+    /***
+     * Set Internet Explorer Options
+     * @return options
+     */
+    private InternetExplorerOptions setIEOptions() {
+        InternetExplorerOptions options = new InternetExplorerOptions();
+        options.setCapability(InternetExplorerDriver.NATIVE_EVENTS, false);
+        options.setCapability(InternetExplorerDriver.ENABLE_PERSISTENT_HOVERING, false);
+        options.setCapability(InternetExplorerDriver.REQUIRE_WINDOW_FOCUS, false);
+        options.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, true);
+        options.setCapability(InternetExplorerDriver.IGNORE_ZOOM_SETTING, true);
+        options.setCapability(InternetExplorerDriver.
+                INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
+        return options;
+    }
+}
+
+===============
+package com.letskodeit.base;
+
+import com.letskodeit.pageclasses.*;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Parameters;
+
+import java.util.concurrent.TimeUnit;
+
+public class BaseTest {
+    public WebDriver driver;
+    protected String baseURL;
+    protected LoginPage login;
+    protected NavigationPage nav;
+    protected SearchBarPage search;
+    protected ResultsPage result;
+    protected CategoryFilterPage category;
+
+    @BeforeClass
+    @Parameters({"browser"})
+    public void commonSetUp(String browser) {
+        driver = WebDriverFactory.getInstance().getDriver(browser);
+        baseURL = "https://learn.letskodeit.com";
+        driver.get(baseURL);
+        nav = new NavigationPage(driver);
+        login = nav.login();
+    }
+
+    @AfterClass
+    public void commonTearDown() {
+        WebDriverFactory.getInstance().quitDriver();
+    }
+}
