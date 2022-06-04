@@ -410,14 +410,205 @@ public class BaseTest {
 }
 
 ========================================================================================================================================================
+CheckPoint Concept:
+we have so many verfications in all test methods
+test1 --> verify account image
+		verify header
+test2--> verify header
+		verify url
+
+if execption happens , further code in test method doesnot execute
+code execution goes to next method
 
 
+instead of getting the testcase stop at one failure , we want to continue
+all test steps inside a test method , so that we can know all failures in a test method
+it would be better we know all the lines that test steps get error are logged into a file
+and at a time we can report them or make any chnage
 
 
+Our checkpoint class will do:
+1.run thru complete test method
+2.check all assertions
+3.if there is even a single failure then mark the test method as failed
+4.if all assertions are successful then mark test method as successful
+
+CheckPoint class implementation:
+inside src/test/java - base package create a class - CheckPoint
+
+public class CheckPoint {
+
+	//this will store result of every checkpoint which used to be assert statement
+	public static HashMap<String,String> resultMap = new HashMap<String,String>();
+	private static String PASS = "PASS";
+	private static String FAIL = "FAIL";
+	
+	public static void clearHashMap() {
+		System.out.println("Clearing results of HashMap");
+		resultMap.clear();
+	}
+	
+	private static void setStatus(String mapKey,String status) {
+		resultMap.put(mapKey, status);
+		System.out.println(mapKey + "->" + resultMap.get(mapKey));
+	}
+	
+	public static void mark(String testName,boolean result,String resultMessage) {
+		testName = testName.toLowerCase();
+		String mapKey = testName+"."+resultMessage;
+		try {
+			if(result) {
+				setStatus(mapKey,PASS);
+			}else {
+				setStatus(mapKey,FAIL);
+			}
+		}catch(Exception e) {
+			setStatus(mapKey,FAIL);
+			e.printStackTrace();
+		}
+	}
+	
+	public static void markFinal(String testName,boolean result,String resultMessage) {
+		testName = testName.toLowerCase();
+		String mapKey = testName+"."+resultMessage;
+		try {
+			if(result) {
+				setStatus(mapKey,PASS);
+			}else {
+				setStatus(mapKey,FAIL);
+			}
+		}catch(Exception e) {
+			setStatus(mapKey,FAIL);
+			e.printStackTrace();
+		}
+		ArrayList<String> resultList = new ArrayList<String>();
+		for(String key:resultMap.keySet()) {
+			resultList.add(resultMap.get(key));
+		}
+		for(int i=0;i<resultList.size();i++) {
+			if(resultList.contains(FAIL)) {
+				Assert.assertTrue(false);
+			}else {
+				Assert.assertTrue(true);
+			}
+		}
+	}
+	
+//	In every test method if there are morethan one assertions call mark() in place of every assertion
+//	and in place of last assertion call markFinal
+}
 
 
+same as softAssert 
+
+checkPoint class:
+public class CheckPoint {
+    public static HashMap<String, String> resultMap = new HashMap<String, String>();
+    private static String PASS = "PASS";
+    private static String FAIL = "FAIL";
+
+    /***
+     * Clears the results hash map
+     */
+    public static void clearHashMap() {
+        System.out.print("Clearing Results Hash Map");
+        resultMap.clear();
+    }
+
+    /***
+     * Set status of the Result Map
+     * @param mapKey
+     * @param status
+     */
+    private static void setStatus(String mapKey, String status) {
+        resultMap.put(mapKey, status);
+        System.out.println(mapKey + " :-> " + resultMap.get(mapKey));
+    }
+
+    /**
+     * Keeps the verification point status with testName, Result and Verification Point Message in hash map
+     *
+     * @param testName      - The test case name
+     * @param result        - Verification Result from test method
+     * @param resultMessage - Message tagged with verification
+     */
+    public static void mark(String testName, boolean result, String resultMessage) {
+        testName = testName.toLowerCase();
+        String mapKey = testName + "." + resultMessage;
+        try {
+            if (result) {
+                setStatus(mapKey, PASS);
+            } else {
+                setStatus(mapKey, FAIL);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception Occurred...");
+            setStatus(mapKey, FAIL);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Keeps the verification point status with testName, Result and Verification Point Message in hash map
+     * It asserts all the verifications in a test method, if any verification
+     * in a test method is failed then the test case is failed
+     *
+     * @param testName      - The test case name
+     * @param result        - Verification Result from test method
+     * @param resultMessage - Message tagged with verification
+     */
+    public static void markFinal(String testName, boolean result, String resultMessage) {
+        testName = testName.toLowerCase();
+        String mapKey = testName + "." + resultMessage;
+        try {
+            if (result) {
+                setStatus(mapKey, PASS);
+            } else {
+                setStatus(mapKey, FAIL);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception Occurred...");
+            setStatus(mapKey, FAIL);
+            e.printStackTrace();
+        }
+
+        ArrayList<String> resultList = new ArrayList<String>();
+
+        for (String key: resultMap.keySet()) {
+            resultList.add(resultMap.get(key));
+        }
+
+        for (int i = 0; i < resultList.size(); i++) {
+            if (resultList.contains(FAIL)) {
+                System.out.println("Test Method Failed");
+                Assert.assertTrue(false);
+            } else {
+                System.out.println("Test Method Successful");
+                Assert.assertTrue(true);
+            }
+        }
+    }
+}
 
 
+Utilizing checkpoint class in test method:
+ @Test
+    public void testLogin() {
+        nav = login.signInWith("test@email.com", "abcabc");
+        boolean headerResult = nav.verifyHeader();
+        //Assert.assertTrue(headerResult); // code stops, I fix this
+        CheckPoint.mark("test-01", headerResult, "header verification");  //<----------------------------------------------------------------------
+        boolean result = nav.isUserLoggedIn(); // there are issues with this method also
+        CheckPoint.markFinal("test-01", result, "login verification");  //<-------------------------------------------------------------------------
+        //Assert.assertTrue(result);
+    }
+
+
+inside BaseTest class: clearing HashMap before every testmethod
+ @BeforeMethod
+    public void methodSetUp() {
+        CheckPoint.clearHashMap();
+    }
 ========================================================================================================================================================
 
 
