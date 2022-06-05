@@ -1,12 +1,7 @@
 package com.hybrid.testcases;
 
-import java.time.Duration;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.hybrid.base.BaseTest;
@@ -15,8 +10,8 @@ import com.hybrid.pageclasses.CartPage;
 import com.hybrid.pageclasses.CheckoutPage;
 import com.hybrid.pageclasses.HomePage;
 import com.hybrid.pageclasses.Successpage;
+import com.hybrid.utilities.Constants;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 public class AllProductsTest extends BaseTest{
@@ -30,7 +25,7 @@ public class AllProductsTest extends BaseTest{
 //		 boolean result = h.verifyContent();
 //		 System.out.println(result);
 		a = h.openContactPage();
-		a.signIn("demosite@gmail.com", "demosite@gmail.com");
+		a.signIn(Constants.DEFAULT_USERNAME, Constants.DEFAULT_PASSWORD);
 
 		h = a.goToHomePage();
 		System.out.println(h.productName());

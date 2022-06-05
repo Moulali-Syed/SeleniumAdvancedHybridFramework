@@ -10,6 +10,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 
+import com.hybrid.utilities.Constants;
+
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class BaseTest {
@@ -21,7 +23,7 @@ public class BaseTest {
 	@Parameters({"browser"})
 	public void commonSetup(String browser) {
 		driver = WebDriverFactory.getInstance().getDriver(browser);
-		baseURL = "https://askomdch.com/";
+		baseURL = Constants.BASE_URL;
 		driver.get(baseURL);
 	}
 

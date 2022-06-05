@@ -114,21 +114,25 @@ public class WebDriverFactory {
 
 /*
 
-    public WebDriver getDriver(String browser) {
+    
+        public WebDriver getDriver(String browser) {
         WebDriver driver = null;
         setDriver(browser);    -----------------------------------------------------this acts as System.setProperty();
         if (threadedDriver.get() == null) {
             try {
-                if (browser.equalsIgnoreCase("firefox")) {
-                    driver = new FirefoxDriver();
+                if (browser.equalsIgnoreCase(Constants.FIREFOX)) {
+                    FirefoxOptions ffOptions = setFFOptions();
+                    driver = new FirefoxDriver(ffOptions);
                     threadedDriver.set(driver);
                 }
-                if (browser.equalsIgnoreCase("chrome")) {
-                    driver = new ChromeDriver();
+                if (browser.equalsIgnoreCase(Constants.CHROME)) {
+                    ChromeOptions chromeOptions = setChromeOptions();
+                    driver = new ChromeDriver(chromeOptions);
                     threadedDriver.set(driver);
                 }
-                if (browser.equalsIgnoreCase("iexplorer")) {
-                    driver = new InternetExplorerDriver();
+                if (browser.equalsIgnoreCase(Constants.IE)) {
+                    InternetExplorerOptions ieOptions = setIEOptions();
+                    driver = new InternetExplorerDriver(ieOptions);
                     threadedDriver.set(driver);
                 }
             } catch (Exception e) {
@@ -145,23 +149,23 @@ public class WebDriverFactory {
         threadedDriver.set(null);
     }
 
-    private void setDriver(String browser) {
+   private void setDriver(String browser) {
         String driverPath = "";
-        String os = System.getProperty("os.name").toLowerCase().substring(0, 3);
+        String os = Constants.OS_NAME.toLowerCase().substring(0, 3);
         System.out.println("OS Name from system property :: " + os);
-        String directory = System.getProperty("user.dir") + "//drivers//";
+        String directory = Constants.USER_DIRECTORY + Constants.DRIVERS_DIRECTORY;
         String driverKey = "";
         String driverValue = "";
 
-        if (browser.equalsIgnoreCase("firefox")) {
-            driverKey = "webdriver.gecko.driver";
-            driverValue = "geckodriver";
-        } else if (browser.equalsIgnoreCase("chrome")) {
-            driverKey = "webdriver.chrome.driver";
-            driverValue = "chromedriver";
-        } else if (browser.equalsIgnoreCase("ie")) {
-            driverKey = "webdriver.ie.driver";
-            driverValue = "IEDriverServer";
+        if (browser.equalsIgnoreCase(Constants.FIREFOX)) {
+            driverKey = Constants.GECKO_DRIVER_KEY;
+            driverValue = Constants.GECKO_DRIVER_VALUE;
+        } else if (browser.equalsIgnoreCase(Constants.CHROME)) {
+            driverKey = Constants.CHROME_DRIVER_KEY;
+            driverValue = Constants.CHROME_DRIVER_VALUE;
+        } else if (browser.equalsIgnoreCase(Constants.IE)) {
+            driverKey = Constants.IE_DRIVER_KEY;
+            driverValue = Constants.IE_DRIVER_VALUE;
         } else {
             System.out.println("Browser type not supported");
         }

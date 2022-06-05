@@ -1,0 +1,626 @@
+Implement  constants class:
+minimum points of modification of constant values
+thus help in one point of reference to update all constant values
+inside src/main/java - utilities package - create a class - Constants
+
+
+public static final String BASE_URL = "https://askomdch.com/";
+baseURL = Constants.BASE_URL; - use this in BaseTest class
+
+public static final String USER_DIRECTORY = System.getProperty("user.dir");
+	
+public static final String DRIVERS_DIRECTORY = "//drivers//";
+String directory = Constants.USER_DIRECTORY + Constants.DRIVER_DIRCTORY; //use in WebDriverFactory class
+
+
+package com.letskodeit.utilities;
+
+public class Constants {
+
+    public static final String BASE_URL = "https://learn.letskodeit.com";
+    public static final String USER_DIRECTORY = System.getProperty("user.dir");
+    public static final String OS_NAME = System.getProperty("os.name");
+    public static final String DRIVERS_DIRECTORY = "//drivers//";
+    public static final String FIREFOX = "firefox";
+    public static final String CHROME = "chrome";
+    public static final String IE = "ie";
+    public static final String GECKO_DRIVER_KEY = "webdriver.gecko.driver";
+    public static final String CHROME_DRIVER_KEY = "webdriver.chrome.driver";
+    public static final String IE_DRIVER_KEY = "webdriver.ie.driver";
+    public static final String GECKO_DRIVER_VALUE = "geckodriver";
+    public static final String CHROME_DRIVER_VALUE = "chromedriver";
+    public static final String IE_DRIVER_VALUE = "IEDriverServer";
+    	public static final String DEFAULT_USERNAME = "demosite@gmail.com";
+	public static final String DEFAULT_PASSWORD = "demosite@gmail.com";
+}
+
+a.signIn(Constants.DEFAULT_USERNAME, Constants.DEFAULT_PASSWORD);
+=============================================================================================================================================================
+Data Driven Testing:
+we have test same functionality with different sets of data
+
+1. We will store data in Excel file
+2. Then we will be reading the data from Excel file and passing it to the test method
+3. We will use TestNG's Data Provider annotation to pass the data to the test method
+4. And this feature of TestNG will help to run the test method multiple times
+
+Example:
+If we have 2 data sets, then the test method will be executed 2 times
+
+Dependencies Needed:
+Search on mvnrepository.com
+1. xmlbeans
+2. poi
+3. poi-examples
+4. poi-excelant
+5. poi-ooxml
+6. poi-ooxml-schemas
+7. poi-scratchpad
+8. commons-io
+
+<!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
+<dependency>
+<groupId>org.apache.xmlbeans</groupId>
+<artifactId>xmlbeans</artifactId>
+<version>2.6.0</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-examples -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi-examples</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-excelant -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi-excelant</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi-ooxml</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-schemas -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi-ooxml-schemas</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-scratchpad -->
+<dependency>
+<groupId>org.apache.poi</groupId>
+<artifactId>poi-scratchpad</artifactId>
+<version>3.11</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+<dependency>
+<groupId>commons-io</groupId>
+<artifactId>commons-io</artifactId>
+<version>2.6</version>
+</dependency>
+
+
+How to read from excel file
+in src/main - create a package resources
+and create a excel file - ExampleData.xlsx
+
+in src/test/java create a class ExcelReadExample , inside overview package
+
+basi excel file read operation:
+import java.io.FileInputStream;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class ExcelReadExample {
+
+	public static void main(String[] args) {
+
+		XSSFWorkbook ExcelWBook;
+		XSSFSheet ExcelWSheet;
+		XSSFCell ExcelCell;
+
+		String path = System.getProperty("user.dir") + "\\src\\main\\java\\resources\\ExampleData.xlsx";
+		String sheetName = "Scenario1";
+
+		try {
+			FileInputStream ExcelFile = new FileInputStream(path);
+			ExcelWBook = new XSSFWorkbook(ExcelFile);
+			ExcelWSheet = ExcelWBook.getSheet(sheetName);
+			ExcelCell = ExcelWSheet.getRow(0).getCell(1);
+
+			String cellData = ExcelCell.getStringCellValue();
+			System.out.println("Cell Data value is : " + cellData);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}
+
+
+
+How to manage test datain excel file
+inside src/main/java - utilites package create - ExcelUtility class
+import java.io.FileInputStream;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class ExcelUtility {
+
+    private static XSSFWorkbook ExcelWBook;
+    private static XSSFSheet ExcelWSheet;
+
+    /*
+     * Set the File path, open Excel file
+     * @params - Excel Path and Sheet Name
+     */
+    public static void setExcelFile(String path, String sheetName) {
+        try {
+            // Open the Excel file
+            FileInputStream ExcelFile = new FileInputStream(path);
+
+            // Access the excel data sheet
+            ExcelWBook = new XSSFWorkbook(ExcelFile);
+            ExcelWSheet = ExcelWBook.getSheet(sheetName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String[][] getTestData(String tableName) {
+        String[][] testData = null;
+
+        try {
+            // Handle numbers and strings
+            DataFormatter formatter = new DataFormatter();
+            // BoundaryCells are the first and the last column
+            // We need to find first and last column, so that we know which rows to read for the data
+            XSSFCell[] boundaryCells = findTableNameCells(tableName);
+            // First cell to start with
+            XSSFCell startCell = boundaryCells[0];
+            // Last cell where data reading should stop
+            XSSFCell endCell = boundaryCells[1];
+
+            // Find the start row based on the start cell
+            int startRow = startCell.getRowIndex() + 1;
+            // Find the end row based on end cell
+            int endRow = endCell.getRowIndex() - 1;
+            // Find the start column based on the start cell
+            int startCol = startCell.getColumnIndex() + 1;
+            // Find the end column based on end cell
+            int endCol = endCell.getColumnIndex() - 1;
+
+            // Declare multi-dimensional array to capture the data from the table
+            testData = new String[endRow - startRow + 1][endCol - startCol + 1];
+
+            for (int i=startRow; i<endRow+1; i++) {
+                for (int j=startCol; j<endCol+1; j++) {
+                    // For every column in every row, fetch the value of the cell
+                    Cell cell = ExcelWSheet.getRow(i).getCell(j);
+                    // Capture the value of the cell in the multi-dimensional array
+                    testData[i - startRow][j - startCol] = formatter.formatCellValue(cell);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Return the multi-dimensional array
+        return testData;
+    }
+
+    public static XSSFCell[] findTableNameCells(String tableName) {
+        DataFormatter formatter = new DataFormatter();
+        // Declare begin position
+        String pos = "begin";
+        XSSFCell[] cells = new XSSFCell[2];
+
+        for (Row row : ExcelWSheet) {
+            for (Cell cell : row) {
+                if (tableName.equals(formatter.formatCellValue(cell))) {
+                    if (pos.equalsIgnoreCase("begin")) {
+                        // Find the begin cell, this is used for boundary cells
+                        cells[0] = (XSSFCell) cell;
+                        pos = "end";
+                    } else {
+                        // Find the end cell, this is used for boundary cells
+                        cells[1] = (XSSFCell) cell;
+                    }
+                }
+            }
+        }
+        // Return the cells array
+        return cells;
+    }
+}
+
+
+ExcelUtility Usage in test class
+public class AllCoursesTests extends BaseTest {
+
+    @DataProvider(name = "verifySearchCourseData")   //------------------------------------1
+    public Object[][] getVerifySearchCourseData(){
+        Object[][] testData = ExcelUtility.getTestData("verify_search_course");
+        return testData;
+    }
+
+    @BeforeClass
+    public void setUp() {
+        nav = login.signInWith(Constants.DEFAULT_USERNAME, Constants.DEFAULT_PASSWORD);
+        ExcelUtility.setExcelFile(Constants.EXCEL_FILE, "AllCoursesTests");//-----------------------------------2
+    }
+
+    @Test(dataProvider = "verifySearchCourseData")//------------------------------------3
+    public void verifySearchCourse(String courseName) {
+        nav.allCourses();
+        search = new SearchBarPage(driver);
+        result = search.course(courseName);
+        boolean searchResult = result.verifySearchResult();
+        Assert.assertTrue(searchResult);
+    }
+
+    @Test(enabled = false)
+    public void filterByCategory() {
+        nav.allCourses();
+        category = new CategoryFilterPage(driver);
+        result = category.select("Software IT");
+        int count = category.findCoursesCount("Software IT");
+        boolean filterResult = result.verifyFilterCourseCount(count);
+        Assert.assertTrue(filterResult);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        //driver.quit();
+    }
+}
+
+in excel data should be in below format
+verify_search_course	course_name		
+				rest api		
+				javascript		
+						verify_search_course	
+			
+			
+			
+test_method_name	data 1			data 2	
+			sample data 1		sample data 2	
+			sample data 1		sample data 2	
+											test_method_name
+
+=====================================================================================================================================================================
+log4j2:
+<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+
+
+five main types of log statements
+trace
+debug
+info
+error
+fatal
+
+mainly we use debug/info , error
+
+log.error - conditions like element not found or not clicked*
+log.debug - on selenium debug actions like click() , sendKeys()
+log.info - on successful actions like page load , other verifications*
+
+logs are for automation engineers not for management
+good to log everything for easy debugging
+
+
+log4j2 configuration
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="basePath">./logs</Property>
+    </Properties>
+    <Appenders>
+        <RollingFile name="File" fileName="${basePath}/app.log" filePattern="${basePath}/app-%d{yyyy-MM-dd-HHmmss}.log">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %c{2} -%msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100 KB"/>
+            </Policies>
+        </RollingFile>
+        <Console name="Console">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %c{1} -%msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="File"/>
+        </Root>
+        <!--<Logger name="com.letskodeit.overview" level="info" additivity="false">
+            <AppenderRef ref="File"/>
+        </Logger>-->
+    </Loggers>
+</Configuration>
+
+in pom.xml file inside build tag write and provide the log4j2.xml file package address
+<resources>
+	<resource>
+		<directory>src/main/java/resources/configs</directory>
+	</resource>
+</resources>
+
+public class LoggingDemo {
+	private static final Logger log = LogManager.getLogger(LoggingDemo.class.getName());
+
+	public static void main(String[] args) {
+		log.trace("Trace message printed");
+		log.debug("Debug message printed");
+		log.info("Info message printed");
+		log.error("Error message printed");
+		log.fatal("Fatal message printed");
+	}
+}
+
+
+private static final Logger log = LogManager.getLogger(LoggingDemo.class.getName());
+place this step in all classes where ever logging is required and replace this LoggingDemo.class.getName() with ClassName.class.getName()
+
+
+=====================================================================================================================================================================
+extent reports - from rahulshetty course
+
+Why Reporting?
+Status to:
+	Upper Management
+	Development Team
+	Product/Project Management
+
+Representation of automation efforts outside of the team
+
+
+What goes in reports?
+1. High level status of Automation Run
+2. Should clearly represent the Test Suite/Test Class
+3. Name of Test Classes, Test Methods
+4. Status of Test Methods (Success/Failed)
+5. No need to put exception messages/other details of debugging
+
+
+<!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+<dependency>
+    <groupId>com.aventstack</groupId>
+    <artifactId>extentreports</artifactId>
+    <version>4.0.9</version>
+</dependency>
+=====================================================================================================================================================================
+git and github:
+store file in a remote /central location
+can track history of changes made to that file
+
+git is free and open source
+distributed version control system
+it is becoming a standard tool for version control
+
+git - distributed version control system
+svn - centralized version control system
+
+git - local copy complete version control repo, entire history of project
+svn - single version of repo
+
+git - no internet connection -> commits, diffs , logs , branches, merges ..etc
+
+
+versioning file is very important
+tracking chnages and owner of chnages
+enables team to collaborate and work efficiently
+
+
+github
+git repo hosting service
+collaboration between team members
+code reviews and maintaining documentation
+
+creating local git repo and staging and commit:
+go to the folder
+
+1.git init     $initialize git repo
+2.git status   $it tells u r on master branch and shows untracked files
+3.git add fileName $adds file to tracked files , git add .
+4.git commit -m "comment" $commit to local git repo
+5.git diff fileName $ shows what added and removed in file , - represents lines deleted ,+ represents lines added
+6.git log fileName - shows all details of file previous commits
+
+
+signup for github
+
+Then
+7.git remote add origin url
+8.git push -u origin master
+
+
+clone the git repo:
+9.git clone https://github.com/..../repoName.git
+10.we can now directly - git push origin master
+
+pull code
+11.git pull
+
+
+importance of branching:
+Branches are like a private space isolated from default master branch
+our private branch code doesnot affect master branch unless we merge the private branch to master branch
+this keeps master branch with less issues
+
+different branch for every person
+
+
+branches demo:
+go to the project directoty
+and check on which branch we are on
+
+a]git branch  - [shows all branches]
+b]git checkout -b privatebranch1   [-b is used only when we want to create a branch]
+c]git checkout privatebranch1  [to switch branch] and make changes
+
+now do git branch , and git checkout master it will show all branches
+d]git branch
+e]git pull origin master
+f]git merge privatebranch1
+g]git push origin master
+
+in mac nano .gitignore
+in windows , create a file .gitignore file 
+we shouldnot checkin ide specific code and some other files
+.idea/
+SomeName.iml
+target/
+
+
+clone
+git clone https://..../.git
+
+=====================================================================================================================================================================
+
+Jenkins:
+advantages and features
+jenkins setup and configurations
+jenkins management
+project configuration
+running a project using jenkins
+scheduling jenkins to automate the process
+
+jenkins configuration:
+we need to set 2 things 
+1.java jdk path
+2.maven
+
+in cmd check 
+mvn --version
+we will get MAVEN HOME : path 
+
+open localhost:8080
+manage jenkins--> global tool configuration
+we can see options
+JDK and MAVEN
+uncheck install automatically
+goto maven - MAVEN_HOME - provide the path and name it according to version
+JDK - provide java jdk path , c:\programFiles\java\jdk1.8.0_241 and provide name jdk1.8
+and click on save
+
+securing jenkins:
+login with admin credentials
+manage jenkins - configure global security - 
+Security Retain - jenkins own user database - allow users to sign up[checkmark]
+
+Authorization - LoggedInusers can do anything , - allow anonyomous read access
+
+manage jenkins - manage users - create user - provide name,password,email create user
+now go to manage jenkins - configure global security - authorization - Matrix based security - Add user or group and provide what ever access we want to provide
+
+
+jenkins plugin management:
+manage plugins - available - search and add the plugins like testng results
+
+=====================================================================================================================================================================
+Build freestyle project using jenkins and github:
+step1:goto  the jenkins.war file location
+java -jar jenkins.war --httpPort=8080
+Step2:open localhost:8080
+new item - enter a name -freestyle project - in source code management select git - from github copy the the repo path and paste the repo url
+credentials - add git credentials
+step3:
+Build
+invoke toplevel maven targets - maven version and goals test -PprofileId
+save
+
+step4:BuildNow
+
+
+in extentreports class 
+add htmlReporter.config().setAutoCreateRelativePathMedia(true) - this helps in screenshot finding
+and in pom.xml create profiles , to run thru jenkins , add profiles using maven surefire plugin
+
+
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
+
+=====================================================================================================================================================================
+
+
+
+
